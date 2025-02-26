@@ -1,0 +1,7 @@
+{
+    "service": {
+      "name": "shelter",
+      "port": 5001,
+      "connect": { "sidecar_service": {} }
+    }
+  }
