@@ -56,7 +56,7 @@ services:
     depends_on:
       - rabbit-1
     environment:
-      - JOIN_CLUSTER_HOST=rabbit-1
+      - JOIN_CLUSTER_HOST=rabbitmq1
       - RABBITMQ_ERLANG_COOKIE=supersecretcookie
     volumes:
       - rabbitmq2-data:/var/lib/rabbitmq
@@ -71,7 +71,7 @@ services:
     depends_on:
       - rabbit-1
     environment:
-      - JOIN_CLUSTER_HOST=rabbit-1
+      - JOIN_CLUSTER_HOST=rabbitmq1
       - RABBITMQ_ERLANG_COOKIE=supersecretcookie
     volumes:
       - rabbitmq3-data:/var/lib/rabbitmq
