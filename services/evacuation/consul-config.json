@@ -1,7 +1,0 @@
-{
-    "service": {
-      "name": "evacuation",
-      "port": 5000,
-      "connect": { "sidecar_service": {} }
-    }
-  }

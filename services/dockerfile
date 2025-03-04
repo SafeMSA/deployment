@@ -1,0 +1,12 @@
+# (Debian based)
+FROM python:3.14-rc-bookworm
+
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+
+ARG GIT_REPO
+RUN git clone ${GIT_REPO} .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+CMD ["sh", "-c", "git pull && python3 -u main.py"]

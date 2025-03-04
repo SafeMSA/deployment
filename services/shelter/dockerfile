@@ -1,9 +1,0 @@
-FROM hashicorp/consul:latest
-
-# Set up git repo
-RUN apk add --no-cache git
-WORKDIR /app
-RUN git clone https://github.com/SafeMSA/shelter.git .
-
-# Pull the latest changes every time the container starts
-CMD ["sh", "-c", "git pull && consul agent -retry-join=consul-server -client=0.0.0.0"]

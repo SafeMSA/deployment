@@ -6,11 +6,12 @@ rabbitmq-server &
 # Wait for RabbitMQ to be fully up before continuing
 echo "Waiting for RabbitMQ to start..."
 until rabbitmqctl status; do
-  sleep 5
+  sleep 1
 done
 
 # If this is NOT the first node, try to join the cluster
-if [ "$JOIN_CLUSTER_HOST" != "" ]; then
+if [ "$JOIN_CLUSTER_HOST" != "" ]; 
+then
   echo "Waiting for cluster host to launch..."
   sleep 5
   echo "Joining RabbitMQ cluster at $JOIN_CLUSTER_HOST..."
@@ -20,6 +21,11 @@ if [ "$JOIN_CLUSTER_HOST" != "" ]; then
   rabbitmqctl start_app
   echo "Cluster status:"
   rabbitmqctl cluster_status
+else
+  rabbitmqctl add_user myuser mypassword
+  rabbitmqctl set_user_tags myuser administrator
+  rabbitmqctl set_permissions -p / myuser ".*" ".*" ".*"
+  echo "Custom RabbitMQ user created: myuser"
 fi
 
 wait

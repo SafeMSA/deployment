@@ -17,11 +17,14 @@ services:
 
 # Evacuation service
   evacuation-service:
-    build: ./services/evacuation
+    build:
+      context: ./services
+      args:
+        GIT_REPO: https://github.com/SafeMSA/evacuation.git
     container_name: evacuation
-    command: "agent -retry-join=consul-server -client=0.0.0.0"
     depends_on:
-      - consul-server
+      - rabbit-1
+      - positioning-service
     networks:
       - backend-network
 
@@ -32,6 +35,18 @@ services:
     command: "agent -retry-join=consul-server -client=0.0.0.0"
     depends_on:
       - consul-server
+    networks:
+      - backend-network
+
+# Positioning
+  positioning-service:
+    build:
+      context: ./services
+      args:
+        GIT_REPO: https://github.com/SafeMSA/positioning.git
+    container_name: positioning
+    depends_on:
+      - rabbit-1
     networks:
       - backend-network
 
@@ -48,6 +63,7 @@ services:
       - rabbitmq1-logs:/var/log/rabbitmq
     networks:
       - data-network
+      - backend-network
 
   rabbit-2:
     build: ./rabbitmq
