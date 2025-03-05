@@ -21,7 +21,9 @@ services:
       context: ./services
       args:
         GIT_REPO: https://github.com/SafeMSA/evacuation.git
-    container_name: evacuation
+    deploy:
+      mode: replicated
+      replicas: 3
     depends_on:
       - rabbit-1
       - positioning-service
@@ -54,6 +56,11 @@ services:
     build: ./rabbitmq
     hostname: rabbitmq1
     container_name: rabbitmq1
+    restart: always
+    ports:
+      - "5672:5672"    # AMQP
+      - "15672:15672"  # Management UI
+      - "15692:15692"  # Prometheus metrics
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
@@ -95,6 +102,35 @@ services:
     networks:
       - data-network
 
+  prometheus:
+      image: prom/prometheus:latest
+      container_name: prometheus
+      restart: always
+      volumes:
+        - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      ports:
+        - "9090:9090"
+      depends_on:
+        - rabbit-1
+      networks:
+        - data-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./grafana/dashboard.yml:/etc/grafana/provisioning/dashboards/dashboard.yml
+    depends_on:
+      - prometheus
+    networks:
+        - data-network
+
 networks:
   backend-network:
     driver: bridge
@@ -108,3 +144,4 @@ volumes:
   rabbitmq2-logs:
   rabbitmq3-data:
   rabbitmq3-logs:
+  grafana-data:
