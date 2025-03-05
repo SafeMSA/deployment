@@ -29,5 +29,5 @@ Prometheus is used to scrape metrics from RabbitMQ and other services.
 ### **Grafana**
 Grafana provides dashboards to visualize RabbitMQ and system performance.
 
-- **URL:** [http://localhost:3000](localhost:3000/d/Kn5xm-gZk/rabbitmq-overview?orgId=1&from=now-15m&to=now&timezone=browser&var-DS_PROMETHEUS=default&var-namespace=&var-rabbitmq_cluster=rabbit@rabbitmq1&refresh=15s)
-- Default login: **admin / admin** (change after first login)
+- **URL:** [http://localhost:3000](localhost:3000)
+- Default login: **admin / admin**
