@@ -31,5 +31,5 @@ Grafana provides dashboards to visualize RabbitMQ and system performance.
 
 - **URL:** [http://localhost:3000](http://localhost:3000)
 - Default login: **admin / admin** (change after first login)
-- preloaded dashboard for rabbitmq [localhost:3000/d/Kn5xm-gZk/rabbitmq-overview?orgId=1&from=now-15m&to=now&timezone=browser&var-DS_PROMETHEUS=default&var-namespace=&var-rabbitmq_cluster=rabbit@rabbitmq1&refresh=15s](here)
+- preloaded dashboard for rabbitmq [here](localhost:3000/d/Kn5xm-gZk/rabbitmq-overview?orgId=1&from=now-15m&to=now&timezone=browser&var-DS_PROMETHEUS=default&var-namespace=&var-rabbitmq_cluster=rabbit@rabbitmq1&refresh=15s)
  
