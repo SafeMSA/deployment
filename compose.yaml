@@ -16,7 +16,7 @@ services:
       - backend-network
 
 # Evacuation service
-  evacuation-service:
+  evac-service:
     build:
       context: ./services
       args:
@@ -27,6 +27,19 @@ services:
     depends_on:
       - rabbit-1
       - positioning-service
+    networks:
+      - backend-network
+
+  evac-proxy:
+    image: nicholasjackson/consul-envoy
+    restart: always
+    command: ["consul", "connect", "envoy","-sidecar-for", "evac-service"]
+    environment:
+      - CONSUL_HTTP_ADDR=10.5.0.2:8500
+      - CONSUL_GRPC_ADDR=10.5.0.2:8502
+      - SERVICE_CONFIG=/config/web.json
+    volumes:
+      - ./service_config:/config
     networks:
       - backend-network
 
