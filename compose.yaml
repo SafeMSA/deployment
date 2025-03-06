@@ -43,16 +43,6 @@ services:
     networks:
       - backend-network
 
-# Shelter service
-  shelter-service:
-    build: ./services/shelter
-    container_name: shelter
-    command: "agent -retry-join=consul-server -client=0.0.0.0"
-    depends_on:
-      - consul-server
-    networks:
-      - backend-network
-
 # Positioning
   positioning-service:
     build:
