@@ -56,7 +56,6 @@ services:
     build: ./rabbitmq
     hostname: rabbitmq1
     container_name: rabbitmq1
-    restart: always
     ports:
       - "5672:5672"    # AMQP
       - "15672:15672"  # Management UI

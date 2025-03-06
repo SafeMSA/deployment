@@ -1,4 +1,4 @@
-FROM rabbitmq:latest
+FROM rabbitmq:management
 
 # Copy the entrypoint script to a known location
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh

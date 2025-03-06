@@ -19,6 +19,11 @@ docker compose down
 ---
 
 ## **RabbitMQ Monitoring**
+### **RabbitMQ Monitoring UI**
+View exchanges, queues, and individual messages
+- **URL:** [http://localhost:15672](http://localhost:15672)
+- User login: **myuser / mypassword**
+
 ### **Prometheus**
 Prometheus is used to scrape metrics from RabbitMQ and other services.
 
