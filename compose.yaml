@@ -1,47 +1,46 @@
 services:
+
 # Consul Server
-  consul-server:
-    image: hashicorp/consul:latest
-    container_name: consul-server
-    command: "agent -server -bootstrap-expect=1 -ui -client=0.0.0.0"
+  consul:
+    image: consul:1.9.0
+    command: ["consul","agent","-config-file=/config/consul-single-dc.hcl","-config-dir=/config"]
+    volumes:
+      - "./consul_config:/config"
     ports:
-      - "8500:8500"
-      - "8600:8600/udp"
-      - "8300:8300"
-      - "8301:8301"
-      - "8301:8301/udp"
-      - "8302:8302"
-      - "8302:8302/udp"
+      - 8500:8500
     networks:
-      - backend-network
+      network:
+        ipv4_address: 10.5.255.2
+    depends_on:
+      - prometheus
 
 # Evacuation service
-  evac-service:
+  evac:
     build:
       context: ./services
       args:
         GIT_REPO: https://github.com/SafeMSA/evacuation.git
-    deploy:
-      mode: replicated
-      replicas: 3
     depends_on:
       - rabbit-1
       - positioning-service
     networks:
-      - backend-network
+      network:
+        ipv4_address: 10.5.255.3
 
   evac-proxy:
-    image: nicholasjackson/consul-envoy
+    build:
+      context: ./envoy
     restart: always
-    command: ["consul", "connect", "envoy","-sidecar-for", "evac-service"]
     environment:
-      - CONSUL_HTTP_ADDR=10.5.0.2:8500
-      - CONSUL_GRPC_ADDR=10.5.0.2:8502
-      - SERVICE_CONFIG=/config/web.json
-    volumes:
-      - ./service_config:/config
-    networks:
-      - backend-network
+      - CONSUL_HTTP_ADDR=consul:8500
+      - CONSUL_GRPC_ADDR=consul:8502
+      - SERVICE_CONFIG=/config/evac.hcl
+      - SERVICE_NAME=helloworld
+    command: ["consul", "connect", "envoy","-sidecar-for", "helloworld"]
+    network_mode: "service:evac"
+    depends_on:
+      - evac
+      - consul
 
 # Positioning
   positioning-service:
@@ -53,7 +52,7 @@ services:
     depends_on:
       - rabbit-1
     networks:
-      - backend-network
+      - network
 
   rabbit-1:
     build: ./rabbitmq
@@ -71,8 +70,7 @@ services:
       - rabbitmq1-data:/var/lib/rabbitmq
       - rabbitmq1-logs:/var/log/rabbitmq
     networks:
-      - data-network
-      - backend-network
+      - network
 
   rabbit-2:
     build: ./rabbitmq
@@ -87,7 +85,7 @@ services:
       - rabbitmq2-data:/var/lib/rabbitmq
       - rabbitmq2-logs:/var/log/rabbitmq
     networks:
-      - data-network
+      - network
 
   rabbit-3:
     build: ./rabbitmq
@@ -102,20 +100,19 @@ services:
       - rabbitmq3-data:/var/lib/rabbitmq
       - rabbitmq3-logs:/var/log/rabbitmq
     networks:
-      - data-network
+      - network
 
   prometheus:
-      image: prom/prometheus:latest
-      container_name: prometheus
-      restart: always
-      volumes:
-        - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      ports:
-        - "9090:9090"
-      depends_on:
-        - rabbit-1
-      networks:
-        - data-network
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: always
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      network:
+        ipv4_address: 10.5.255.6
 
   grafana:
     image: grafana/grafana:latest
@@ -131,13 +128,14 @@ services:
     depends_on:
       - prometheus
     networks:
-        - data-network
+      - network
 
 networks:
-  backend-network:
+  network:
     driver: bridge
-  data-network:
-    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
 
 volumes:
   rabbitmq1-data:
