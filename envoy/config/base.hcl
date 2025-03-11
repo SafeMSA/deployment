@@ -3,8 +3,8 @@
 
 service {
   name    = "$SERVICE_NAME"
-  id      = "$SERVICE_NAME"
-  address = "10.5.255.3"
+  id      = "$SERVICE_ID"
+  address = "$SERVICE_ADDRESS"
   port    = 9091
 
   tags = ["v1"]
@@ -18,7 +18,7 @@ service {
 
       check {
         name     = "Connect Envoy Sidecar"
-        tcp      = "10.5.255.3:20000"
+        tcp      = "$SERVICE_ADDRESS:20000"
         interval = "10s"
       }
 
