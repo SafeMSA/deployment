@@ -5,7 +5,7 @@ then
 else
     envsubst "$(printf '${%s} ' $(env | cut -d'=' -f1))" < /config/response.hcl > /config/config.hcl
 fi
-sleep 10
+sleep 1
 
 # Call the original entrypoint of the base image
 exec /entrypoint.sh "$@"
