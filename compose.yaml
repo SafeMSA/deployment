@@ -45,79 +45,14 @@ services:
       - web
       - consul
 
-  # Define api v1 service and envoy sidecar proxy
-  api_v1:
-    image: nicholasjackson/fake-service:v0.19.1
-    environment:
-      LISTEN_ADDR: 0.0.0.0:9092
-      MESSAGE: "Hello World"
-      NAME: "api-v1"
-      SERVER_TYPE: "http"
-    networks:
-      network:
-        ipv4_address: 10.5.255.4
-    depends_on:
-      - evac-proxy1
-
-  api_v1_proxy:
-    build:
-      context: ./envoy
-    restart: always
-    environment:
-      - SERVICE_TYPE=response
-      - CONSUL_HTTP_ADDR=consul:8500
-      - CONSUL_GRPC_ADDR=consul:8502
-      - SERVICE_CONFIG=/config/config.hcl
-      - SERVICE_NAME=api
-      - SERVICE_ID=api_v1
-      - SERVICE_ADDRESS=10.5.255.4
-    command: ["consul", "connect", "envoy","-sidecar-for", "api_v1"]
-    network_mode: "service:api_v1"
-    depends_on:
-      - api_v1
-      - consul
-
-  # Define api v1 service and envoy sidecar proxy
-  api_v2:
-    image: nicholasjackson/fake-service:v0.19.1
-    environment:
-      LISTEN_ADDR: 0.0.0.0:9092
-      MESSAGE: "Hello World"
-      NAME: "api-v2"
-      SERVER_TYPE: "http"
-    networks:
-      network:
-        ipv4_address: 10.5.255.5
-    depends_on:
-      - evac-proxy1
-
-  api_v2_proxy:
-    build:
-      context: ./envoy
-    restart: always
-    environment:
-      - SERVICE_TYPE=response
-      - CONSUL_HTTP_ADDR=consul:8500
-      - CONSUL_GRPC_ADDR=consul:8502
-      - SERVICE_CONFIG=/config/config.hcl
-      - SERVICE_NAME=api
-      - SERVICE_ID=api_v2
-      - SERVICE_ADDRESS=10.5.255.5
-    command: ["consul", "connect", "envoy","-sidecar-for", "api_v2"]
-    network_mode: "service:api_v2"
-    depends_on:
-      - api_v2
-      - consul
-
 # Evacuation service 1
   evac1:
     build:
       context: ./services
       args:
         GIT_REPO: https://github.com/SafeMSA/evacuation.git
-    depends_on:
-      - rabbit-1
-      - positioning-service
+    environment:
+      - NAME=evac-1
     networks:
       network:
         ipv4_address: 10.5.255.3
@@ -127,7 +62,7 @@ services:
       context: ./envoy
     restart: always
     environment:
-      - SERVICE_TYPE=request
+      - SERVICE_TYPE=response
       - CONSUL_HTTP_ADDR=consul:8500
       - CONSUL_GRPC_ADDR=consul:8502
       - SERVICE_CONFIG=/config/config.hcl
@@ -138,6 +73,38 @@ services:
     network_mode: "service:evac1"
     depends_on:
       - evac1
+      - web-proxy
+      - consul
+
+# Evacuation service 2
+  evac2:
+    build:
+      context: ./services
+      args:
+        GIT_REPO: https://github.com/SafeMSA/evacuation.git
+    environment:
+      - NAME=evac-2
+    networks:
+      network:
+        ipv4_address: 10.5.255.4
+
+  evac-proxy2:
+    build:
+      context: ./envoy
+    restart: always
+    environment:
+      - SERVICE_TYPE=response
+      - CONSUL_HTTP_ADDR=consul:8500
+      - CONSUL_GRPC_ADDR=consul:8502
+      - SERVICE_CONFIG=/config/config.hcl
+      - SERVICE_NAME=evac
+      - SERVICE_ID=evac2
+      - SERVICE_ADDRESS=10.5.255.4
+    command: ["consul", "connect", "envoy","-sidecar-for", "evac2"]
+    network_mode: "service:evac2"
+    depends_on:
+      - evac2
+      - web-proxy
       - consul
 
 # Positioning
