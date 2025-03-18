@@ -15,8 +15,8 @@ then
   echo "Waiting for cluster host to launch..."
   sleep 5
   echo "Joining RabbitMQ cluster at $JOIN_CLUSTER_HOST..."
+  rabbitmqctl forget_cluster_node
   rabbitmqctl stop_app
-  rabbitmqctl reset
   rabbitmqctl join_cluster rabbit@$JOIN_CLUSTER_HOST
   rabbitmqctl start_app
   echo "Cluster status:"
