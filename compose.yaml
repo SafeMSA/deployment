@@ -73,7 +73,6 @@ services:
     network_mode: "service:evac1"
     depends_on:
       - evac1
-      - web-proxy
       - consul
 
 # Evacuation service 2
@@ -104,18 +103,43 @@ services:
     network_mode: "service:evac2"
     depends_on:
       - evac2
-      - web-proxy
       - consul
 
-# Positioning
-  positioning-service:
+# Evacuation service 3
+  evac3:
     build:
       context: ./services
       args:
-        GIT_REPO: https://github.com/SafeMSA/positioning.git
-    container_name: positioning
+        GIT_REPO: https://github.com/SafeMSA/evacuation.git
+    environment:
+      - NAME=evac-3
+    networks:
+      network:
+        ipv4_address: 10.5.255.5
+
+  evac-proxy3:
+    build:
+      context: ./envoy
+    restart: always
+    environment:
+      - SERVICE_TYPE=response
+      - CONSUL_HTTP_ADDR=consul:8500
+      - CONSUL_GRPC_ADDR=consul:8502
+      - SERVICE_CONFIG=/config/config.hcl
+      - SERVICE_NAME=evac
+      - SERVICE_ID=evac2
+      - SERVICE_ADDRESS=10.5.255.5
+    command: ["consul", "connect", "envoy","-sidecar-for", "evac3"]
+    network_mode: "service:evac3"
     depends_on:
-      - rabbit-1
+      - evac3
+      - consul
+
+  tag:
+    build:
+      context: ./services
+      args:
+        GIT_REPO: https://github.com/SafeMSA/tag.git
     networks:
       - network
 
