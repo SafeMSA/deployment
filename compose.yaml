@@ -1,6 +1,7 @@
 services:
 # Consul Server
   consul:
+    container_name: consul
     image: consul:1.9.0
     command: ["consul","agent","-config-file=/config/consul-single-dc.hcl","-config-dir=/config"]
     volumes:
@@ -14,6 +15,7 @@ services:
       - prometheus
 
   web:
+    container_name: web
     build:
       context: ./services
       args:
@@ -27,6 +29,7 @@ services:
         ipv4_address: 10.5.255.10
 
   web-proxy:
+    container_name: web_proxy
     build:
       context: ./envoy
     restart: always
@@ -46,6 +49,7 @@ services:
 
 # Evacuation service 1
   evac1:
+    container_name: evac1
     build:
       context: ./services
       args:
@@ -57,6 +61,7 @@ services:
         ipv4_address: 10.5.255.3
 
   evac-proxy1:
+    container_name: evac-proxy1
     build:
       context: ./envoy
     restart: always
@@ -76,6 +81,7 @@ services:
 
 # Evacuation service 2
   evac2:
+    container_name: evac2
     build:
       context: ./services
       args:
@@ -87,6 +93,7 @@ services:
         ipv4_address: 10.5.255.4
 
   evac-proxy2:
+    container_name: evac-proxy2
     build:
       context: ./envoy
     restart: always
@@ -106,6 +113,7 @@ services:
 
 # Evacuation service 3
   evac3:
+    container_name: evac3
     build:
       context: ./services
       args:
@@ -117,6 +125,7 @@ services:
         ipv4_address: 10.5.255.5
 
   evac-proxy3:
+    container_name: evac-proxy3
     build:
       context: ./envoy
     restart: always
@@ -126,21 +135,13 @@ services:
       - CONSUL_GRPC_ADDR=consul:8502
       - SERVICE_CONFIG=/config/config.hcl
       - SERVICE_NAME=evac
-      - SERVICE_ID=evac2
+      - SERVICE_ID=evac3
       - SERVICE_ADDRESS=10.5.255.5
     command: ["consul", "connect", "envoy","-sidecar-for", "evac3"]
     network_mode: "service:evac3"
     depends_on:
       - evac3
       - consul
-
-  tag:
-    build:
-      context: ./services
-      args:
-        GIT_REPO: https://github.com/SafeMSA/tag.git
-    networks:
-      - network
 
   rabbit-1:
     build: ./rabbitmq
@@ -161,6 +162,10 @@ services:
     build: ./rabbitmq
     hostname: rabbitmq2
     container_name: rabbitmq2
+    ports:
+      - "5673:5672"    # AMQP
+      - "15673:15672"  # Management UI
+      - "15693:15692"  # Prometheus metrics
     depends_on:
       - rabbit-1
     environment:
@@ -173,11 +178,26 @@ services:
     build: ./rabbitmq
     hostname: rabbitmq3
     container_name: rabbitmq3
+    ports:
+      - "5674:5672"    # AMQP
+      - "15674:15672"  # Management UI
+      - "15694:15692"  # Prometheus metrics
     depends_on:
       - rabbit-1
     environment:
       - JOIN_CLUSTER_HOST=rabbitmq1
       - RABBITMQ_ERLANG_COOKIE=supersecretcookie
+    networks:
+      - network
+
+  tag:
+    build:
+      context: ./services
+      args:
+        GIT_REPO: https://github.com/SafeMSA/tag.git
+    deploy:
+      mode: replicated
+      replicas: 5
     networks:
       - network
 

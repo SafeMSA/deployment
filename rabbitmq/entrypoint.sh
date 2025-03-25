@@ -16,6 +16,7 @@ then
   sleep 5
   echo "Joining RabbitMQ cluster at $JOIN_CLUSTER_HOST..."
   rabbitmqctl forget_cluster_node
+  rabbitmqctl set_policy ha-all ".*" '{"ha-mode":"all","ha-sync-mode":"automatic"}'
   rabbitmqctl stop_app
   rabbitmqctl join_cluster rabbit@$JOIN_CLUSTER_HOST
   rabbitmqctl start_app

@@ -29,7 +29,7 @@ service {
           local_bind_port    = 9092
 
           config {
-            connect_timeout_ms = 5000
+            connect_timeout_ms = 1000
             limits {
               max_connections         = 3
               max_pending_requests    = 4
