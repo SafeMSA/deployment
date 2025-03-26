@@ -1,11 +1,8 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
-
 service {
-  name = "$SERVICE_NAME"
-  id = "$SERVICE_ID"
+  name    = "$SERVICE_NAME"
+  id      = "$SERVICE_ID"
   address = "$SERVICE_ADDRESS"
-  port = 9092
+  port    = $SERVICE_PORT
 
   tags = ["v1"]
   meta = {

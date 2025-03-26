@@ -1,11 +1,8 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
-
 service {
   name    = "$SERVICE_NAME"
   id      = "$SERVICE_ID"
   address = "$SERVICE_ADDRESS"
-  port    = 9091
+  port    = $SERVICE_PORT
 
   tags = ["v1"]
   meta = {
@@ -24,9 +21,9 @@ service {
 
       proxy {
         upstreams {
-          destination_name   = "evac"
+          destination_name   = "$DESTINATION_NAME"
           local_bind_address = "127.0.0.1"
-          local_bind_port    = 9092
+          local_bind_port    = $DESTINATION_PORT
 
           config {
             connect_timeout_ms = 1000
