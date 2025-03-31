@@ -280,16 +280,160 @@ services:
       - rabbit-3
       - consul
 
-  tag:
+  tag1:
     build:
       context: ./services
       args:
         GIT_REPO: https://github.com/SafeMSA/tag.git
-    deploy:
-      mode: replicated
-      replicas: 5
     networks:
-      - network
+      network:
+        ipv4_address: 10.5.255.200
+
+  tag-proxy1:
+    container_name: tag-proxy1
+    build:
+      context: ./envoy
+    restart: always
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
+      - CONSUL_GRPC_ADDR=consul:8502
+      - SERVICE_TYPE=request
+      - SERVICE_CONFIG=/config/config.hcl
+      - SERVICE_NAME=tag
+      - SERVICE_ID=tag1
+      - SERVICE_ADDRESS=10.5.255.200
+      - SERVICE_PORT=9092
+      - DESTINATION_NAME=rabbitmq
+      - DESTINATION_PORT=9093
+    command: ["consul", "connect", "envoy","-sidecar-for", "tag1"]
+    network_mode: "service:tag1"
+    depends_on:
+      - tag1
+      - consul
+
+  tag2:
+    build:
+      context: ./services
+      args:
+        GIT_REPO: https://github.com/SafeMSA/tag.git
+    networks:
+      network:
+        ipv4_address: 10.5.255.201
+
+  tag-proxy2:
+    container_name: tag-proxy2
+    build:
+      context: ./envoy
+    restart: always
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
+      - CONSUL_GRPC_ADDR=consul:8502
+      - SERVICE_TYPE=request
+      - SERVICE_CONFIG=/config/config.hcl
+      - SERVICE_NAME=tag
+      - SERVICE_ID=tag2
+      - SERVICE_ADDRESS=10.5.255.201
+      - SERVICE_PORT=9092
+      - DESTINATION_NAME=rabbitmq
+      - DESTINATION_PORT=9093
+    command: ["consul", "connect", "envoy","-sidecar-for", "tag2"]
+    network_mode: "service:tag2"
+    depends_on:
+      - tag2
+      - consul
+
+  tag3:
+    build:
+      context: ./services
+      args:
+        GIT_REPO: https://github.com/SafeMSA/tag.git
+    networks:
+      network:
+        ipv4_address: 10.5.255.202
+
+  tag-proxy3:
+    container_name: tag-proxy3
+    build:
+      context: ./envoy
+    restart: always
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
+      - CONSUL_GRPC_ADDR=consul:8502
+      - SERVICE_TYPE=request
+      - SERVICE_CONFIG=/config/config.hcl
+      - SERVICE_NAME=tag
+      - SERVICE_ID=tag3
+      - SERVICE_ADDRESS=10.5.255.202
+      - SERVICE_PORT=9092
+      - DESTINATION_NAME=rabbitmq
+      - DESTINATION_PORT=9093
+    command: ["consul", "connect", "envoy","-sidecar-for", "tag3"]
+    network_mode: "service:tag3"
+    depends_on:
+      - tag3
+      - consul
+
+  tag4:
+    build:
+      context: ./services
+      args:
+        GIT_REPO: https://github.com/SafeMSA/tag.git
+    networks:
+      network:
+        ipv4_address: 10.5.255.203
+
+  tag-proxy4:
+    container_name: tag-proxy4
+    build:
+      context: ./envoy
+    restart: always
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
+      - CONSUL_GRPC_ADDR=consul:8502
+      - SERVICE_TYPE=request
+      - SERVICE_CONFIG=/config/config.hcl
+      - SERVICE_NAME=tag
+      - SERVICE_ID=tag4
+      - SERVICE_ADDRESS=10.5.255.203
+      - SERVICE_PORT=9092
+      - DESTINATION_NAME=rabbitmq
+      - DESTINATION_PORT=9093
+    command: ["consul", "connect", "envoy","-sidecar-for", "tag4"]
+    network_mode: "service:tag4"
+    depends_on:
+      - tag4
+      - consul
+
+  tag5:
+    build:
+      context: ./services
+      args:
+        GIT_REPO: https://github.com/SafeMSA/tag.git
+    networks:
+      network:
+        ipv4_address: 10.5.255.204
+
+  tag-proxy5:
+    container_name: tag-proxy5
+    build:
+      context: ./envoy
+    restart: always
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
+      - CONSUL_GRPC_ADDR=consul:8502
+      - SERVICE_TYPE=request
+      - SERVICE_CONFIG=/config/config.hcl
+      - SERVICE_NAME=tag
+      - SERVICE_ID=tag5
+      - SERVICE_ADDRESS=10.5.255.204
+      - SERVICE_PORT=9092
+      - DESTINATION_NAME=rabbitmq
+      - DESTINATION_PORT=9093
+    command: ["consul", "connect", "envoy","-sidecar-for", "tag5"]
+    network_mode: "service:tag5"
+    depends_on:
+      - tag5
+      - consul
 
   prometheus:
     image: prom/prometheus:latest
