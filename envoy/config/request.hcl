@@ -27,6 +27,7 @@ service {
 
           config {
             connect_timeout_ms = 1000
+            request_timeout_ms = 1000
             limits {
               max_connections         = 3
               max_pending_requests    = 4

@@ -96,6 +96,8 @@ services:
         GIT_REPO: https://github.com/SafeMSA/evacuation.git
     environment:
       - NAME=evac-2
+      - FAILURE_RATE=0
+      - DEGRADATION_RATE=0.3
     ports:
       - "9098:9092"
     networks:
@@ -122,43 +124,6 @@ services:
     network_mode: "service:evac2"
     depends_on:
       - evac2
-      - consul
-
-# Evacuation service 3
-  evac3:
-    container_name: evac3
-    build:
-      context: ./services
-      args:
-        GIT_REPO: https://github.com/SafeMSA/evacuation.git
-    environment:
-      - NAME=evac-3
-    ports:
-      - "9099:9092"
-    networks:
-      network:
-        ipv4_address: 10.5.255.5
-
-  evac-proxy3:
-    container_name: evac-proxy3
-    build:
-      context: ./envoy
-    restart: always
-    environment:
-      - CONSUL_HTTP_ADDR=consul:8500
-      - CONSUL_GRPC_ADDR=consul:8502
-      - SERVICE_TYPE=request
-      - SERVICE_CONFIG=/config/config.hcl
-      - SERVICE_NAME=evac
-      - SERVICE_ID=evac3
-      - SERVICE_ADDRESS=10.5.255.5
-      - SERVICE_PORT=9092
-      - DESTINATION_NAME=rabbitmq
-      - DESTINATION_PORT=9093
-    command: ["consul", "connect", "envoy","-sidecar-for", "evac3"]
-    network_mode: "service:evac3"
-    depends_on:
-      - evac3
       - consul
 
   rabbit-1:
@@ -281,6 +246,7 @@ services:
       - consul
 
   tag1:
+    container_name: tag1
     build:
       context: ./services
       args:
@@ -312,6 +278,7 @@ services:
       - consul
 
   tag2:
+    container_name: tag2
     build:
       context: ./services
       args:
@@ -343,6 +310,7 @@ services:
       - consul
 
   tag3:
+    container_name: tag3
     build:
       context: ./services
       args:
@@ -374,6 +342,7 @@ services:
       - consul
 
   tag4:
+    container_name: tag4
     build:
       context: ./services
       args:
@@ -405,6 +374,7 @@ services:
       - consul
 
   tag5:
+    container_name: tag5
     build:
       context: ./services
       args:
