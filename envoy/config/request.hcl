@@ -27,14 +27,13 @@ service {
 
           config {
             connect_timeout_ms = 1000
-            request_timeout_ms = 1000
             limits {
-              max_connections         = 3
-              max_pending_requests    = 4
-              max_concurrent_requests = 5
+              max_connections         = 2
+              max_pending_requests    = 2
+              max_concurrent_requests = 2
             }
             passive_health_check {
-              interval     = "30s"
+              interval     = "5s"
               max_failures = 10
             }
           }
