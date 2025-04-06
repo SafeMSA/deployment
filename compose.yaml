@@ -52,24 +52,29 @@ services:
 
 # Evacuation service 1
   evac1:
+    restart: always
     container_name: evac1
     build:
       context: ./services
       args:
         GIT_REPO: https://github.com/SafeMSA/evacuation.git
     environment:
-      - NAME=evac-1
+      - NAME=evac1
+      - CRASH_RATE=0
+      - DEGRADATION_RATE=0.1
     ports:
       - "9092:9092"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       network:
         ipv4_address: 10.5.255.3
 
   evac-proxy1:
+    restart: always
     container_name: evac-proxy1
     build:
       context: ./envoy
-    restart: always
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
       - CONSUL_GRPC_ADDR=consul:8502
@@ -89,26 +94,29 @@ services:
 
 # Evacuation service 2
   evac2:
+    restart: always
     container_name: evac2
     build:
       context: ./services
       args:
         GIT_REPO: https://github.com/SafeMSA/evacuation.git
     environment:
-      - NAME=evac-2
-      - FAILURE_RATE=0
-      - DEGRADATION_RATE=0.3
+      - NAME=evac2
+      - CRASH_RATE=0
+      - DEGRADATION_RATE=0.1
     ports:
       - "9098:9092"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       network:
         ipv4_address: 10.5.255.4
 
   evac-proxy2:
+    restart: always
     container_name: evac-proxy2
     build:
       context: ./envoy
-    restart: always
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
       - CONSUL_GRPC_ADDR=consul:8502
@@ -127,6 +135,7 @@ services:
       - consul
 
   rabbit-1:
+    restart: always
     build: ./rabbitmq
     hostname: rabbitmq1
     container_name: rabbitmq1
@@ -144,10 +153,10 @@ services:
         ipv4_address: 10.5.255.100
 
   rabbit-proxy1:
+    restart: always
     container_name: rabbit-proxy1
     build:
       context: ./envoy
-    restart: always
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
       - CONSUL_GRPC_ADDR=consul:8502
@@ -166,6 +175,7 @@ services:
       - consul
 
   rabbit-2:
+    restart: always
     build: ./rabbitmq
     hostname: rabbitmq2
     container_name: rabbitmq2
@@ -184,10 +194,10 @@ services:
         ipv4_address: 10.5.255.101
   
   rabbit-proxy2:
+    restart: always
     container_name: rabbit-proxy2
     build:
       context: ./envoy
-    restart: always
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
       - CONSUL_GRPC_ADDR=consul:8502
@@ -206,6 +216,7 @@ services:
       - consul
 
   rabbit-3:
+    restart: always
     build: ./rabbitmq
     hostname: rabbitmq3
     container_name: rabbitmq3
@@ -224,10 +235,10 @@ services:
         ipv4_address: 10.5.255.102
 
   rabbit-proxy3:
+    restart: always
     container_name: rabbit-proxy3
     build:
       context: ./envoy
-    restart: always
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
       - CONSUL_GRPC_ADDR=consul:8502
@@ -246,6 +257,7 @@ services:
       - consul
 
   tag1:
+    restart: always
     container_name: tag1
     build:
       context: ./services
@@ -256,10 +268,10 @@ services:
         ipv4_address: 10.5.255.200
 
   tag-proxy1:
+    restart: always
     container_name: tag-proxy1
     build:
       context: ./envoy
-    restart: always
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
       - CONSUL_GRPC_ADDR=consul:8502
@@ -278,6 +290,7 @@ services:
       - consul
 
   tag2:
+    restart: always
     container_name: tag2
     build:
       context: ./services
@@ -288,10 +301,10 @@ services:
         ipv4_address: 10.5.255.201
 
   tag-proxy2:
+    restart: always
     container_name: tag-proxy2
     build:
       context: ./envoy
-    restart: always
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
       - CONSUL_GRPC_ADDR=consul:8502
@@ -310,6 +323,7 @@ services:
       - consul
 
   tag3:
+    restart: always
     container_name: tag3
     build:
       context: ./services
@@ -320,10 +334,10 @@ services:
         ipv4_address: 10.5.255.202
 
   tag-proxy3:
+    restart: always
     container_name: tag-proxy3
     build:
       context: ./envoy
-    restart: always
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
       - CONSUL_GRPC_ADDR=consul:8502
@@ -342,6 +356,7 @@ services:
       - consul
 
   tag4:
+    restart: always
     container_name: tag4
     build:
       context: ./services
@@ -352,10 +367,10 @@ services:
         ipv4_address: 10.5.255.203
 
   tag-proxy4:
+    restart: always
     container_name: tag-proxy4
     build:
       context: ./envoy
-    restart: always
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
       - CONSUL_GRPC_ADDR=consul:8502
@@ -374,6 +389,7 @@ services:
       - consul
 
   tag5:
+    restart: always
     container_name: tag5
     build:
       context: ./services
@@ -384,10 +400,10 @@ services:
         ipv4_address: 10.5.255.204
 
   tag-proxy5:
+    restart: always
     container_name: tag-proxy5
     build:
       context: ./envoy
-    restart: always
     environment:
       - CONSUL_HTTP_ADDR=consul:8500
       - CONSUL_GRPC_ADDR=consul:8502
@@ -403,6 +419,38 @@ services:
     network_mode: "service:tag5"
     depends_on:
       - tag5
+      - consul
+
+  collector:
+    container_name: collector
+    build:
+      context: ./services
+      args:
+        GIT_REPO: https://github.com/SafeMSA/collector.git
+    networks:
+      network:
+        ipv4_address: 10.5.255.220
+
+  collector-proxy:
+    container_name: collector_proxy
+    build:
+      context: ./envoy
+    restart: always
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
+      - CONSUL_GRPC_ADDR=consul:8502
+      - SERVICE_TYPE=request
+      - SERVICE_CONFIG=/config/config.hcl
+      - SERVICE_NAME=collector
+      - SERVICE_ID=collector1
+      - SERVICE_ADDRESS=10.5.255.220
+      - SERVICE_PORT=9092
+      - DESTINATION_NAME=rabbitmq
+      - DESTINATION_PORT=9093
+    command: ["consul", "connect", "envoy","-sidecar-for", "collector1"]
+    network_mode: "service:collector"
+    depends_on:
+      - collector
       - consul
 
   prometheus:
