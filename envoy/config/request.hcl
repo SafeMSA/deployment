@@ -26,15 +26,15 @@ service {
           local_bind_port    = $DESTINATION_PORT
 
           config {
-            connect_timeout_ms = 1000
+            connect_timeout_ms = 3000
             limits {
-              max_connections         = 2
-              max_pending_requests    = 2
-              max_concurrent_requests = 2
+              max_connections         = 5
+              max_pending_requests    = 5
+              max_concurrent_requests = 5
             }
             passive_health_check {
               interval     = "5s"
-              max_failures = 10
+              max_failures = 100
             }
           }
         }

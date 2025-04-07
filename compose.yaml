@@ -50,6 +50,42 @@ services:
       - web
       - consul
 
+  requester:
+    container_name: requester
+    build:
+      context: ./services
+      args:
+        GIT_REPO: https://github.com/SafeMSA/requester.git
+    environment:
+      NAME: "requester"
+    ports:
+      - "9191:9091"
+    networks:
+      network:
+        ipv4_address: 10.5.255.99
+
+  requester-proxy:
+    container_name: requester_proxy
+    build:
+      context: ./envoy
+    restart: always
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
+      - CONSUL_GRPC_ADDR=consul:8502
+      - SERVICE_TYPE=request
+      - SERVICE_CONFIG=/config/config.hcl
+      - SERVICE_NAME=requester
+      - SERVICE_ID=requester
+      - SERVICE_ADDRESS=10.5.255.99
+      - SERVICE_PORT=9091
+      - DESTINATION_NAME=evac
+      - DESTINATION_PORT=9092
+    command: ["consul", "connect", "envoy","-sidecar-for", "requester"]
+    network_mode: "service:requester"
+    depends_on:
+      - requester
+      - consul
+
 # Evacuation service 1
   evac1:
     restart: always
@@ -61,7 +97,7 @@ services:
     environment:
       - NAME=evac1
       - CRASH_RATE=0
-      - DEGRADATION_RATE=0.1
+      - DEGRADATION_RATE=0
     ports:
       - "9092:9092"
     volumes:
@@ -103,7 +139,7 @@ services:
     environment:
       - NAME=evac2
       - CRASH_RATE=0
-      - DEGRADATION_RATE=0.1
+      - DEGRADATION_RATE=0
     ports:
       - "9098:9092"
     volumes:
