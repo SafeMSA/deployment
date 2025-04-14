@@ -96,7 +96,7 @@ services:
         GIT_REPO: https://github.com/SafeMSA/evacuation.git
     environment:
       - NAME=evac1
-      - RESTART_TIME=20
+      - RESTART_TIME=120
       - CRASH_RATE=0.01
       - DEGRADATION_RATE=0.01
     ports:
@@ -128,6 +128,50 @@ services:
     depends_on:
       - evac1
       - consul
+
+# Evacuation service 2
+  evac2:
+    restart: always
+    container_name: evac2
+    build:
+      context: ./services
+      args:
+        GIT_REPO: https://github.com/SafeMSA/evacuation.git
+    environment:
+      - NAME=evac2
+      - RESTART_TIME=120
+      - CRASH_RATE=0.01
+      - DEGRADATION_RATE=0.01
+    ports:
+      - "9098:9092"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      network:
+        ipv4_address: 10.5.255.4
+
+  evac-proxy2:
+    restart: always
+    container_name: evac-proxy2
+    build:
+      context: ./envoy
+    environment:
+      - CONSUL_HTTP_ADDR=consul:8500
+      - CONSUL_GRPC_ADDR=consul:8502
+      - SERVICE_TYPE=request
+      - SERVICE_CONFIG=/config/config.hcl
+      - SERVICE_NAME=evac
+      - SERVICE_ID=evac2
+      - SERVICE_ADDRESS=10.5.255.4
+      - SERVICE_PORT=9092
+      - DESTINATION_NAME=rabbitmq
+      - DESTINATION_PORT=9093
+    command: ["consul", "connect", "envoy","-sidecar-for", "evac2"]
+    network_mode: "service:evac2"
+    depends_on:
+      - evac2
+      - consul
+
 
   rabbit-1:
     restart: always
