@@ -1,3 +1,4 @@
+# **[NOT UP TO DATE]**
 # **Deployment**
 
 This repository contains the deployment configuration for a **Microservices Architecture (MSA)** that communicates over **RabbitMQ**. The system is containerized using **Docker Compose**, making it easy to deploy locally or on a server.
